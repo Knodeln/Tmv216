@@ -1,0 +1,60 @@
+import numpy as np
+
+
+def normalized(a, axis=-1, order=2):
+    l2 = np.atleast_1d(np.linalg.norm(a, order, axis))
+    l2[l2 == 0] = 1
+    return a / np.expand_dims(l2, axis)
+
+
+def normalise(x):
+    fac = abs(x).max()
+    x_n = x / x.max()
+    return fac, x_n
+
+
+def r_quote(b, A):
+    bt = normalized(b, 0)
+    btt = np.transpose(bt)
+
+    RK1 = np.dot(btt, A)
+    RK2 = np.dot(RK1, bt)
+    return RK2
+
+
+def potens(b, A):
+    b = np.dot(A, b)
+    fac, b = normalise(b)
+    return b, fac
+
+
+def potens_calc(p, b , A):
+    RK = r_quote(b, A)
+    max_range = 1000
+    i = 0
+    for i in range(max_range):
+        b, eg = potens(b, A)
+        RK2 = r_quote(b, A)
+        if abs(RK - RK2) < 10 ** -p:
+            print(f" Egenvektorn till B: {b}")
+            print(f" Största egenvärdet genom rayleighkvor: {RK2[0][0]}")
+            # print(np.linalg.eig(A))
+            i = 1
+            break
+        RK = RK2
+    if i == 0:
+        print("Precisison too small")
+
+def main():
+    n = 50
+    p = 20
+    b = np.random.randint(-10, 10, size=(n, 1))
+    A = np.random.randint(-10, 10, size=(n, n))
+    At = A.transpose()
+    B = A + At
+    potens_calc(p, b, B)
+
+
+
+if __name__ == "__main__":
+    main()
