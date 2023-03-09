@@ -1,0 +1,96 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# Uppgift (a
+def random_graph(n, p):
+    return_graph = np.random.choice(2, (n, n), p=[1 - p, p])
+    for x in range(n):
+        for y in range(n):
+            if y <= x:
+                return_graph[x][y] = 0
+    return_graph = (return_graph + return_graph.T) / 2
+    for x in range(n):
+        for y in range(n):
+            return_graph[y][x] += 0.1
+    return_graph = (np.rint(return_graph)).astype(np.longlong)
+    return return_graph
+
+
+# Uppgift (b
+def num_paths(A):
+    nr_of_paths = 0
+    n = int((A.size ** 0.5) + 1)
+    x = 1
+    while x < n:
+        B = np.linalg.matrix_power(A, x)
+        nr_of_paths += B
+        x += 1
+    return nr_of_paths
+
+
+# Uppgift (d
+def is_connected(A):
+    A = num_paths(A)
+    if np.where(A == 0)[0].size > 0:
+        return False
+    else:
+        return True
+
+
+def pn_ratio(n):
+    c = 10
+    p1 = 0.1
+    p2 = 0.5
+    p3 = 0.9
+
+    p1_ratio = 0
+    for x in range(c):
+        if is_connected(random_graph(n, p1)):
+            p1_ratio += 1
+    plt.plot(p1_ratio / 10, n, "go")
+    plt.text(p1_ratio/10, n, f"p1:{n}")
+    p2_ratio = 0
+    for x in range(c):
+        if is_connected(random_graph(n, p2)):
+            p2_ratio += 1
+    plt.plot(p2_ratio / 10, n, "go")
+    plt.text(p2_ratio / 10, n, f"p2:{n}")
+    p3_ratio = 0
+    for x in range(c):
+        if is_connected(random_graph(n, p3)):
+            p3_ratio += 1
+    plt.plot(p3_ratio / 10, n, "go")
+    plt.text(p3_ratio / 10, n, f"p3:{n}")
+
+def uppgift_e():
+    pn_ratio(5)
+    pn_ratio(10)
+    pn_ratio(15)
+    pn_ratio(25)
+    pn_ratio(35)
+    pn_ratio(50)
+
+    plt.xlabel("connected ratio")
+    plt.ylabel("n")
+    plt.show()
+    # använd mindre tal än n = 100
+    # när n närmar sig oändligheten är det nästan garanterat att grafen är sammanhängande
+
+if __name__ == "__main__":
+    # Uppgift (c
+    A = random_graph(10, 0.5)
+    B = random_graph(100, 0.5)
+    print(f"A min: {np.min(num_paths(A))}")
+    print(f"A max: {np.max(num_paths(A))}")
+    print(f"B min: {np.min(num_paths(B))}")
+    print(f"B max: {np.max(num_paths(B))}")
+    print(
+        "Numpy använder 32-bitar c-typ ints med tecken. Dessa har ett span på mellan -2,147,483,648 och 2,147,483,647.")
+    print("Max och min numren hamnar väldigt nära dessa gränser men överstiger ej. Har antagligen skett overflow.")
+
+    # Uppgift (d
+    print(f"A connected: {is_connected(A)}")
+    print(f"B connected: {is_connected(B)}")
+
+    uppgift_e()
